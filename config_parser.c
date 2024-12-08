@@ -34,7 +34,15 @@ void parse_config_file(const char* filename){
     /*printf("%s\n", line);*/
    if( check_line_for_comments(line))
     {
-      printf("%s\n", line);
+      char *key_start = strstr(line,"MODKEY");
+      char *key_end = strstr(line, "}}") + 2;
+      int key_length = key_end - key_start;
+      char key[key_length] ;
+      
+      strncpy(key,key_start, key_length);
+      key[key_length] = '\0';
+      printf("%s %d\n", key, key_length);
+      
     }
   }
   fclose(config_file);
