@@ -13,7 +13,7 @@
 
 typedef struct {
   char key[32];
-  char description[128];
+  char comment[128];
 } Shortcut;
 
 

@@ -21,34 +21,43 @@ bool  check_line_for_comments(const char *line) {
 
  
 void parse_config_file(const char* filename){
-
   FILE *config_file = fopen(filename, "r");
   if(config_file == NULL){
     perror("Error opening file..!\n");
 
     return;
-  }
+  } 
+
 
   char line[MAX_LINE_LENGTH];
   while(fgets(line, MAX_LINE_LENGTH, config_file)){
-    /*printf("%s\n", line);*/
+    
    if( check_line_for_comments(line))
     {
       char *key_start = strstr(line,"MODKEY");
-      char *key_end = strstr(line, "}}") + 2;
+      char *key_end = strstr(line, "//<") -3;
       int key_length = key_end - key_start;
-      char key[key_length] ;
+      char key[key_length];
       
       strncpy(key,key_start, key_length);
       key[key_length] = '\0';
-      printf("%s %d\n", key, key_length);
-      
+            
+      char *comment_start = strstr(line,"//<") + 3;
+      char *comment_end = strstr(line, ">");
+      comment_end--;
+
+      int comment_len = comment_end-comment_start;
+      char comment[comment_len];
+      strncpy(comment, comment_start, comment_len);
+      comment[comment_len] = '\0';
+
+      strncpy(shortcuts[shortcut_count].key , key, sizeof(key));
+      strncpy(shortcuts[shortcut_count++].comment, comment, sizeof(comment));
     }
   }
+
+  
   fclose(config_file);
 }
 
-int main(){
-  parse_config_file("/home/ramees/.config/dwm/config.h");
-  return 0;
-}
+
