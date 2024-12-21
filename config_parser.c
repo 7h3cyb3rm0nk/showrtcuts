@@ -1,63 +1,92 @@
 #include "config_parser.h"
 
-
-
-
 Shortcut shortcuts[MAX_SHORTCUTS];
 int shortcut_count =  0;
 
 
-bool __contains_substring(const char *string, const char *c){
-  return (strstr(string, c) != NULL);
+
+char* find_closing_brace(char *str) {
+  int brace_count = 0;
+  while(*str ) {
+    if(*str == '{') brace_count++;
+    if(*str == '}'){
+      brace_count--;
+      if(brace_count == 0)
+        return str;
+    }
+    str++;
+  }
+}
+
+void trim_start(char **line){
+  while(isspace((unsigned char)**line) && **line != 0) (*line)++;
+  return;
+}
+
+void trim_end(char **line) {
+  char *end = *line + strlen(*line) -1;
+  while(isspace((unsigned char) *end) && end >= *line ){ end--;}
+  end[1] = '\0';
+}
+
+void trim(char **line) {
+  trim_start(line);
+  trim_end(line);
 }
 
 
-bool  check_line_for_comments(const char *line) {
-  return ( (__contains_substring(line, "{MODKEY") &&
-                 !(__contains_substring(line, "TAGKEY")) && __contains_substring(line, "//<"))
-         && ( __contains_substring(line, "}")) );
+void parse_line(Shortcut *s,char *line) {
+  /*trim(&line);*/
+  char *key_start = strstr( line, "MODKEY");
+  char *key_end = find_closing_brace(key_start)+1;
+  char *description_start = strstr(line,"//<") + 3;
+  char *description_end = strstr(line, ">");
+  trim_start(&description_start);
+  trim_start(&key_start);
+  if(key_start && key_end && description_start && description_end) {
+    int key_length = key_end - key_start;
+    int description_length = description_end - description_start;
 
+    strncpy(s->key, key_start, key_length);
+    s->key[key_length]  = '\0';
+    strncpy(s->description, description_start, description_length);
+    s->description[description_length] = '\0';
+
+
+  }
 }
 
- 
-void parse_config_file(const char* filename){
-  FILE *config_file = fopen(filename, "r");
-  if(config_file == NULL){
-    perror("Error opening file..!\n");
-
-    return;
-  } 
-
-
+int parse_config(const char *filepath) {
+  FILE *config = fopen(filepath, "r");
+  if(config == NULL){
+    fprintf(stderr, "Error Opening File: %s\n", filepath);
+    return -1;
+  }
   char line[MAX_LINE_LENGTH];
-  while(fgets(line, MAX_LINE_LENGTH, config_file)){
-    
-   if( check_line_for_comments(line))
-    {
-      char *key_start = strstr(line,"MODKEY");
-      char *key_end = strstr(line, "//<") -3;
-      int key_length = key_end - key_start;
-      char key[key_length];
-      
-      strncpy(key,key_start, key_length);
-      key[key_length] = '\0';
-            
-      char *comment_start = strstr(line,"//<") + 3;
-      char *comment_end = strstr(line, ">");
-      comment_end--;
 
-      int comment_len = comment_end-comment_start;
-      char comment[comment_len];
-      strncpy(comment, comment_start, comment_len);
-      comment[comment_len] = '\0';
+  
+  while(fgets(line, MAX_LINE_LENGTH, config)){
 
-      strncpy(shortcuts[shortcut_count].key , key, sizeof(key));
-      strncpy(shortcuts[shortcut_count++].comment, comment, sizeof(comment));
+    if(strstr(line, "MODKEY") && strstr(line, "//<")){
+      parse_line(&shortcuts[shortcut_count++], line);
     }
   }
 
+  fclose(config);
+  if(shortcut_count == 0 ) {
+    return -1;}
+  else{
+    return 1;
+  }
   
-  fclose(config_file);
 }
 
 
+/*int main(){*/
+/*  parse_config("/home/ramees/.config/dwm/config.h");*/
+/*  for(int i = 0; i< shortcut_count; i++){*/
+/*    printf("%s ---> [%s]\n", &shortcuts[i].key, strupr(shortcuts[i].description));*/
+/**/
+/*  }*/
+/*  return 0;*/
+/*}*/
