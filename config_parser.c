@@ -37,6 +37,11 @@ void trim(char **line) {
 
 void parse_line(Shortcut *s,char *line) {
   /*trim(&line);*/
+  if(line == "") {
+    shortcut_count>0?shortcut_count--:0;
+    return;
+
+  }
   char *key_start = strstr( line, "MODKEY");
   char *key_end = find_closing_brace(key_start)+1;
   char *description_start = strstr(line,"//<") + 3;
@@ -51,6 +56,7 @@ void parse_line(Shortcut *s,char *line) {
     s->key[key_length]  = '\0';
     strncpy(s->description, description_start, description_length);
     s->description[description_length] = '\0';
+    shortcut_count++;
 
 
   }
@@ -68,7 +74,7 @@ int parse_config(const char *filepath) {
   while(fgets(line, MAX_LINE_LENGTH, config)){
 
     if(strstr(line, "MODKEY") && strstr(line, "//<")){
-      parse_line(&shortcuts[shortcut_count++], line);
+      parse_line(&shortcuts[shortcut_count], line);
     }
   }
 

@@ -4,7 +4,7 @@ ui_o = ui.o
 config_o = config.o
 
 default: $(ui_o) $(config_o)
-	cc -o showrtcuts $(config_o) $(ui_o) main.c -lncurses -ggdb3
+	cc -o showrtcuts $(config_o) $(ui_o) main.c -lncurses -lcdk -ggdb3
 
 config.o: $(config)
 	cc -c config_parser.c -o config.o
