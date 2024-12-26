@@ -14,13 +14,13 @@ void display_ui(const char *path ) {
   WINDOW *screen = initscr();
   CDKSCREEN *cdkscreen = initCDKScreen(screen);
   initCDKColor();
-  raw();
-  noecho(); 
-  idlok(stdscr, TRUE);
-  attron(A_BOLD);
-  getmaxyx(stdscr, row, col);
-  scrollok(stdscr, true);
-  refresh();
+  /*raw();*/
+  /*noecho(); */
+  /*idlok(stdscr, TRUE);*/
+  /*attron(A_BOLD);*/
+  /*getmaxyx(stdscr, row, col);*/
+  /*scrollok(stdscr, true);*/
+  /*refresh();*/
 
   char *items[shortcut_count];
   int i=0;
